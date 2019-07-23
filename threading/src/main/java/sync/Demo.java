@@ -11,7 +11,8 @@ public class Demo {
         Demo app = new Demo();
         app.doWork();
     }
-    public void doWork() {
+
+    private void doWork() {
         Thread t1 = new Thread(() -> {
             for(int i=0; i<10000; i++) {
                 increment();
