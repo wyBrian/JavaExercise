@@ -3,6 +3,7 @@ services:
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper-1
+    restart: unless-stopped
     ports:
       - "12181:12181"
     environment:
@@ -16,6 +17,7 @@ services:
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper-2
+    restart: unless-stopped
     ports:
       - "22181:22181"
     environment:
@@ -29,6 +31,7 @@ services:
   zookeeper-3:
     image: confluentinc/cp-zookeeper:latest
     hostname: zookeeper-3
+    restart: unless-stopped
     ports:
       - "32181:32181"
     environment:
@@ -42,41 +45,57 @@ services:
   kafka-1:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-1
+    restart: unless-stopped
     ports:
       - "19092:19092"
+      - "19093:19093"
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: LISTENER_1://kafka-1:19092,LISTENER_2://kafka-1:19093
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_1://kafka-1:19092,LISTENER_2://localhost:19093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_1:PLAINTEXT,LISTENER_2:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:12181,zookeeper-2:12181,zookeeper-3:12181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:19092
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-2
+    restart: unless-stopped
     ports:
       - "29092:29092"
+      - "29093:29093"
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 2
+      KAFKA_LISTENERS: LISTENER_1://kafka-2:29092,LISTENER_2://kafka-2:29093
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_1://kafka-2:29092,LISTENER_2://localhost:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_1:PLAINTEXT,LISTENER_2:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:12181,zookeeper-2:12181,zookeeper-3:12181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-3
+    restart: unless-stopped
     ports:
       - "39092:39092"
+      - "39093:39093"
+
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 3
+      KAFKA_LISTENERS: LISTENER_1://kafka-3:39092,LISTENER_2://kafka-3:29093
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_1://kafka-3:39092,LISTENER_2://localhost:39093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_1:PLAINTEXT,LISTENER_2:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:12181,zookeeper-2:12181,zookeeper-3:12181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:39092
