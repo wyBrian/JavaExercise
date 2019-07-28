@@ -33,10 +33,29 @@ public class TwitterProducer {
     }
 
     private void run() {
+        logger.info("Setup");
+
+        /** Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream */
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(1000);
+
+        // create a twitter client
         Client client = createTwitterClient(msgQueue);
+        // Attempts to establish a connection.
         client.connect();
+
+        // create a kafka producer
         KafkaProducer<String, String> producer = createKafkaProducer();
+
+        // add a shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("stopping application...");
+            logger.info("shutting down client from twitter...");
+            client.stop();
+            logger.info("closing producer...");
+            producer.close();
+            logger.info("done!");
+        }));
+
         while (!client.isDone()) {
             String msg = null;
             try {
@@ -67,16 +86,16 @@ public class TwitterProducer {
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-//        // create safe Producer
-//        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-//        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
-//        properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
-//        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); // kafka 2.0 >= 1.1 so we can keep this as 5. Use 1 otherwise.
-//
-//        // high throughput producer (at the expense of a bit of latency and CPU usage)
-//        properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
-//        properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
-//        properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32*1024)); // 32 KB batch size
+        // create safe Producer
+        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
+        properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
+        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); // kafka 2.0 >= 1.1 so we can keep this as 5. Use 1 otherwise.
+
+        // high throughput producer (at the expense of a bit of latency and CPU usage)
+        properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
+        properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32*1024)); // 32 KB batch size
 
         // create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
@@ -86,7 +105,7 @@ public class TwitterProducer {
     public Client createTwitterClient(BlockingQueue<String> msgQueue){
         Hosts hosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        List<String> terms = Lists.newArrayList("xiaomi");
+        List<String> terms = Lists.newArrayList("trump");
         endpoint.trackTerms(terms);
         Properties prop = DeveloperCredentials.getProperties();
         Authentication auth = new OAuth1(
