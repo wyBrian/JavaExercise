@@ -2,7 +2,7 @@ version: '3'
 services:
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
-    hostname: zookeeper-1
+    container_name: zookeeper-1
     restart: unless-stopped
     ports:
       - "12181:12181"
@@ -16,7 +16,7 @@ services:
 
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
-    hostname: zookeeper-2
+    container_name: zookeeper-2
     restart: unless-stopped
     ports:
       - "22181:22181"
@@ -30,7 +30,7 @@ services:
 
   zookeeper-3:
     image: confluentinc/cp-zookeeper:latest
-    hostname: zookeeper-3
+    container_name: zookeeper-3
     restart: unless-stopped
     ports:
       - "32181:32181"
@@ -44,7 +44,7 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
-    hostname: kafka-1
+    container_name: kafka-1
     restart: unless-stopped
     ports:
       - "19092:19092"
@@ -63,7 +63,7 @@ services:
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
-    hostname: kafka-2
+    container_name: kafka-2
     restart: unless-stopped
     ports:
       - "29092:29092"
@@ -82,7 +82,7 @@ services:
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
-    hostname: kafka-3
+    container_name: kafka-3
     restart: unless-stopped
     ports:
       - "39092:39092"
