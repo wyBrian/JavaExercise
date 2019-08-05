@@ -1,0 +1,27 @@
+GET _cluster/health?pretty
+
+
+PUT profiles
+{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 3,
+            "number_of_replicas" : 2
+        }
+    },
+    "mappings" : {
+        "properties" : {
+            "firstName" : { "type" : "text" },
+            "lastName" : { "type" : "text" },
+            "email" : { "type" : "text" }
+        }
+    }
+}
+
+
+POST profiles/_doc/0
+{
+    "firstName" : "Bryant",
+    "lastName" : "Kobe",
+    "email" : "unknown"
+}
